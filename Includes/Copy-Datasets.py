@@ -31,7 +31,8 @@ def download_dataset(source, target):
 
 data_source_uri = "s3://dalhussein-courses/datasets/bookstore/v1/"
 
-db_name = "default"
+# db_name = "default"
+db_name = "kgkang"
 
 catalogs = spark.sql("SHOW CATALOGS").collect()
 hive_exists = any(row.catalog == 'hive_metastore' for row in catalogs)
@@ -44,7 +45,8 @@ if hive_exists:
     spark.sql(f"CREATE SCHEMA IF NOT EXISTS {db_name}")
     spark.sql(f"USE SCHEMA {db_name}")
 else:
-    data_catalog = spark.sql("SELECT current_catalog()").collect()[0][0]
+    # data_catalog = spark.sql("SELECT current_catalog()").collect()[0][0]
+    data_catalog = 'proservx'
     dataset_volume_name = "bookstore_dataset"
     checkpoints_volume_name = "bookstore_checkpoints"
     dataset_bookstore = f"/Volumes/{data_catalog}/{db_name}/{dataset_volume_name}"

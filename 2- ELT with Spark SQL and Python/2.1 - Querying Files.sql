@@ -16,31 +16,67 @@
 
 -- COMMAND ----------
 
+-- MAGIC
+-- MAGIC %python
+-- MAGIC display(f"{dataset_bookstore}")
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC dbutils.widgets.remove("dataset_bookstore")
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC dbutils.widgets.text("dataset_bookstore", dataset_bookstore)
+-- MAGIC print(dbutils.widgets.get("dataset_bookstore"))
+
+-- COMMAND ----------
+
+
+SELECT '${dataset_bookstore}' AS dataset_bookstore;
+
+-- COMMAND ----------
+
 -- MAGIC %python
 -- MAGIC files = dbutils.fs.ls(f"{dataset_bookstore}/customers-json")
 -- MAGIC display(files)
 
 -- COMMAND ----------
 
-SELECT * FROM json.`${dataset.bookstore}/customers-json/export_001.json`
+-- MAGIC %python
+-- MAGIC display(dataset_bookstore)
 
 -- COMMAND ----------
 
-SELECT * FROM json.`${dataset.bookstore}/customers-json/export_*.json`
+SELECT * FROM json.`${dataset_bookstore}/customers-json/export_001.json`
+-- SELECT * FROM json.`/Volumes/proservx/kgkang/bookstore_dataset/customers-json/export_001.json`
 
 -- COMMAND ----------
 
-SELECT * FROM json.`${dataset.bookstore}/customers-json`
+SELECT * 
+FROM read_files(
+    :dataset_bookstore || '/customers-json/export_001.json',
+    format => 'json'
+)
 
 -- COMMAND ----------
 
-SELECT count(*) FROM json.`${dataset.bookstore}/customers-json`
+SELECT * FROM json.`${dataset_bookstore}/customers-json/export_*.json`
+
+-- COMMAND ----------
+
+SELECT * FROM json.`${dataset_bookstore}/customers-json`
+
+-- COMMAND ----------
+
+SELECT count(*) FROM json.`${dataset_bookstore}/customers-json`
 
 -- COMMAND ----------
 
  SELECT *,
-    input_file_name() source_file
-  FROM json.`${dataset.bookstore}/customers-json`;
+    _metadata.file_path AS source_file
+  FROM json.`${dataset_bookstore}/customers-json`;
 
 -- COMMAND ----------
 
@@ -68,7 +104,7 @@ SELECT * FROM binaryFile.`${dataset.bookstore}/customers-json`
 
 -- COMMAND ----------
 
-SELECT * FROM csv.`${dataset.bookstore}/books-csv`
+SELECT * FROM csv.`${dataset_bookstore}/books-csv`
 
 -- COMMAND ----------
 
@@ -80,11 +116,28 @@ SELECT * FROM csv.`${dataset.bookstore}/books-csv`
 
 -- COMMAND ----------
 
+SHOW EXTERNAL LOCATIONS
+
+-- COMMAND ----------
+
 -- MAGIC %python
--- MAGIC dbutils.widgets.text("external_location", '<EXTERNAL-URL>/external_storage')
+-- MAGIC dbutils.widgets.remove("external_location")
+
+-- COMMAND ----------
+
+SHOW GRANTS ON EXTERNAL LOCATION `databricks-proservx-s3-data-external`;
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC dbutils.widgets.text("external_location", 's3://databricks-proservx-s3-data/external/upload')
 -- MAGIC
 -- MAGIC external_location = dbutils.widgets.get("external_location")
 -- MAGIC dbutils.fs.cp(f"{dataset_bookstore}/books-csv", f"{external_location}/books-csv", recurse=True)
+
+-- COMMAND ----------
+
+SELECT current_catalog(), current_schema()
 
 -- COMMAND ----------
 
